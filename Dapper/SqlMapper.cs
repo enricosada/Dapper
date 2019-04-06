@@ -3187,9 +3187,19 @@ namespace Dapper
                 il.Emit(OpCodes.Ldloc_1);// [target]
             }
 
-            var members = IsValueTuple(type) ? GetValueTupleMembers(type, names) : ((specializedConstructor != null
-                ? names.Select(n => typeMap.GetConstructorParameter(specializedConstructor, n))
-                : names.Select(n => typeMap.GetMember(n))).ToList());
+            List<IMemberMap> members;
+            if (IsValueTuple(type))
+            {
+                members = GetValueTupleMembers(type, names);
+            }
+            else if (specializedConstructor != null)
+            {
+                members = names.Select(n => typeMap.GetConstructorParameter(specializedConstructor, n)).ToList();
+            }
+            else
+            {
+                members = names.Select(n => typeMap.GetMember(n)).ToList();
+            }
 
             // stack is now [target]
 
